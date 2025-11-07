@@ -2,11 +2,16 @@ import dotenv from "dotenv"
 dotenv.config()
 import express from "express"
 import { MongoClient, ServerApiVersion } from "mongodb"
+import cors from "cors"
 
 const app = express()
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json())
+app.use(cors({
+    origin: process.env.CROS_ORIGIN,
+    credentials: true
+}))
 
 
 
@@ -31,15 +36,77 @@ async function run() {
         //create db and collection 
         const db = client.db("myDatabase")
         const userCollection = db.collection("users");
-        const jobCollection = db.collection("jobs");
+        // const jobCollection = db.collection("jobs");
 
-        const user = {
-            name: "rahat",
-            email: "rahat@gmail.com",
-            age: 28
-        }
+        // const user = {
+        //     name: "rahat",
+        //     email: "rahat@gmail.com",
+        //     age: 28
+        // }
 
-        userCollection.insertOne(user)
+        // userCollection.insertOne(user)
+
+
+
+
+        // %%%%%%%%% CRUD operation %%%%%%%%%
+        // add new user to users collection (create | post | insertOne)
+        // app.post("/add-user", async (req, res) => {
+        //     try {
+        //         const newUser = req.body;
+        //         const result = await userCollection.insertOne(newUser)
+        //         const user = await userCollection.findOne({ _id: result.insertedId })
+        //         if (user?.password) delete user.password
+        //         return res.status(201).json({
+        //             success: true,
+        //             message: "user created successfully.",
+        //             user
+
+        //         })
+        //     } catch (error) {
+        //         console.error(error)
+        //         return res.status(500).json({
+        //             success: false,
+        //             message: "failed to add user",
+        //             error: error.message
+        //         })
+        //     }
+        // })
+
+
+
+
+
+
+
+
+        app.post("/add-user", async (req, res) => {
+            try {
+                const newUser = req.body;
+                const result = await userCollection.insertOne(newUser)
+                const user = await userCollection.findOne({ _id: result.insertedId })
+                if (user?.password) delete user.password
+
+                return res.status(201).json({
+                    suceess: true,
+                    message: "user created successfully.",
+                    user
+                })
+            } catch (error) {
+                console.error(error)
+                res.status(500).json({
+                    success: false,
+                    message: "failed to create user",
+                    error: error.message
+                })
+            }
+        })
+
+
+
+
+
+
 
 
         // Send a ping to confirm a successful connection
