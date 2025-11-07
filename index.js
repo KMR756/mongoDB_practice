@@ -73,7 +73,7 @@ async function run() {
         //     }
         // })
 
-
+        // ###################################
 
         // add multiple user to users collection (CRUD | create | post | insertMany)
         // app.post("/add-users", async (req, res) => {
@@ -118,39 +118,28 @@ async function run() {
         // });
 
 
-        app.post("/add-users", async (req, res) => {
+        // ###################################
+
+        // find all user from  users collection (CRUD | read | get | find)
+        app.get("/get-users", async (req, res) => {
             try {
-                const users = req.body;
-
-                if (!Array.isArray(users) || users.length === 0) {
-                    return res.status(400).json({
-                        success: false,
-                        message: "please provide an array of users."
-                    })
-                }
-                const result = await userCollection.insertMany(users)
-                const user = users.map((user, index) => ({
-                    ...user,
-                    _id: result.insertedIds[index]
-                }))
-
-                const userWithoutPassword = user.map(({ password, ...rest }) => rest)
-
-                res.status(201).json({
+                const users = await userCollection.find().toArray();
+                // const totalUser = users.length
+                return res.status(200).json({
                     success: true,
-                    message: "user created successfully.",
-                    user: userWithoutPassword
+                    message: "all user fild successfully.",
+                    totalUser: users.length,
+                    users,
                 })
             } catch (error) {
                 console.error(error)
-                res.status(500).json({
-                    success: true,
-                    message: "faild to create user.",
+                return res.status(500).json({
+                    success: false,
+                    message: "faild to get all users.",
                     error: error.message
                 })
             }
         })
-
 
 
 
