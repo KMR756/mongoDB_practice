@@ -51,44 +51,44 @@ async function run() {
 
         // %%%%%%%%% CRUD operation %%%%%%%%%
         // add new user to users collection (CRUD | create | post | insertOne)
-        app.post("/add-user", async (req, res) => {
-            try {
-                const newUser = req.body;
+        // app.post("/add-user", async (req, res) => {
+        //     try {
+        //         const newUser = req.body;
 
-                // 1️⃣ Check if the email already exists
-                const existingUser = await userCollection.findOne({ email: newUser.email });
+        //         // 1️⃣ Check if the email already exists
+        //         const existingUser = await userCollection.findOne({ email: newUser.email });
 
-                if (existingUser) {
-                    return res.status(400).json({
-                        success: false,
-                        message: "User already registered.",
-                    });
-                }
+        //         if (existingUser) {
+        //             return res.status(400).json({
+        //                 success: false,
+        //                 message: "User already registered.",
+        //             });
+        //         }
 
-                // 2️⃣ If not, insert the new user
-                const result = await userCollection.insertOne(newUser);
+        //         // 2️⃣ If not, insert the new user
+        //         const result = await userCollection.insertOne(newUser);
 
-                // 3️⃣ Retrieve the inserted user without password
-                const user = await userCollection.findOne(
-                    { _id: result.insertedId },
-                    { projection: { password: 0 } } // hide password field
-                );
+        //         // 3️⃣ Retrieve the inserted user without password
+        //         const user = await userCollection.findOne(
+        //             { _id: result.insertedId },
+        //             { projection: { password: 0 } } // hide password field
+        //         );
 
-                // 4️⃣ Send success response
-                return res.status(201).json({
-                    success: true,
-                    message: "User created successfully.",
-                    user,
-                });
-            } catch (error) {
-                console.error(error);
-                return res.status(500).json({
-                    success: false,
-                    message: "Failed to add user.",
-                    error: error.message,
-                });
-            }
-        });
+        //         // 4️⃣ Send success response
+        //         return res.status(201).json({
+        //             success: true,
+        //             message: "User created successfully.",
+        //             user,
+        //         });
+        //     } catch (error) {
+        //         console.error(error);
+        //         return res.status(500).json({
+        //             success: false,
+        //             message: "Failed to add user.",
+        //             error: error.message,
+        //         });
+        //     }
+        // });
 
 
         // ###################################
@@ -161,38 +161,81 @@ async function run() {
 
         // ###################################
 
-        // find single bt id from  users collection (CRUD | read | get | findOne)
-        app.get("/user/:id", async (req, res) => {
+        // find single by id from  users collection (CRUD | read | get | findOne)
+        // app.get("/user/:id", async (req, res) => {
+        //     try {
+        //         const { id } = req.params
+
+        //         const user = await userCollection.findOne({ _id: new ObjectId(id) }, { projection: { password: 0 } })
+        //         if (!user) {
+        //             return res.status(400).json({
+        //                 success: false,
+        //                 message: "user not found."
+        //             })
+        //         }
+        //         // if (user?.password) delete user.password
+        //         return res.status(201).json({
+        //             success: true,
+        //             message: "user fild successfully.",
+        //             user
+
+        //         })
+        //     } catch (error) {
+        //         console.error(error)
+        //         return res.status(400).json({
+        //             success: false,
+        //             message: "faild to find user.",
+        //             error: error.message
+        //         })
+        //     }
+        // })
+
+        // ###################################
+
+        // find document by specific condition from  users collection (CRUD | read | get | find)
+        // finding admins only
+        app.get("/admins", async (req, res) => {
             try {
-                const { id } = req.params
+                const admin = await userCollection.find({ role: "admin" }, { projection: { name: 1, email: 1, role: 1 } }).toArray()
+                console.log(admin);
 
-                const user = await userCollection.findOne({ _id: new ObjectId(id) }, { projection: { password: 0 } })
-                if (!user) {
-                    return res.status(400).json({
-                        success: false,
-                        message: "user not found."
-                    })
-                }
-                // if (user?.password) delete user.password
-                return res.status(201).json({
-                    success: true,
-                    message: "user fild successfully.",
-                    user
-
+                res.status(200).json({
+                    succeess: true,
+                    message: "find all admins.",
+                    admin
                 })
             } catch (error) {
                 console.error(error)
-                return res.status(400).json({
+                res.status(500).json({
                     success: false,
-                    message: "faild to find user.",
+                    message: "faild to fetch admins",
                     error: error.message
                 })
             }
         })
 
+        // ###################################
 
+        // find document by specific condition from  users collection (CRUD | read | get | find)
+        // finding users only
+        app.get("/users", async (req, res) => {
+            try {
+                const users = await userCollection.find({ role: "user" }, { projection: { email: 1, name: 1, role: 1 } }).toArray()
 
-
+                return res.status(201).json({
+                    succeess: true,
+                    message: "user fetch successfully.",
+                    users
+                })
+            } catch (error) {
+                console.error(error)
+                res.status(500).json({
+                    succeess: false,
+                    message: "faild to fetch users.",
+                    error: error.message
+                })
+            }
+        })
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
