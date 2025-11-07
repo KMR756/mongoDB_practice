@@ -50,7 +50,7 @@ async function run() {
 
 
         // %%%%%%%%% CRUD operation %%%%%%%%%
-        // add new user to users collection (create | post | insertOne)
+        // add new user to users collection (CRUD | create | post | insertOne)
         // app.post("/add-user", async (req, res) => {
         //     try {
         //         const newUser = req.body;
@@ -75,33 +75,81 @@ async function run() {
 
 
 
+        // add multiple user to users collection (CRUD | create | post | insertMany)
+        // app.post("/add-users", async (req, res) => {
+        //     try {
+        //         // Expect an array of users in the request body
+        //         const newUsers = req.body;
+
+        //         // Check that the body is an array
+        //         if (!Array.isArray(newUsers) || newUsers.length === 0) {
+        //             return res.status(400).json({
+        //                 success: false,
+        //                 message: "Please provide an array of users."
+        //             });
+        //         }
+
+        //         // Insert all users at once
+        //         const result = await userCollection.insertMany(newUsers);
+
+        //         // Attach inserted _id values to the users
+        //         const savedUsers = newUsers.map((user, index) => ({
+        //             ...user,
+        //             _id: result.insertedIds[index],
+        //         }));
+
+        //         // Remove passwords from each user before sending back
+        //         const usersWithoutPassword = savedUsers.map(({ password, ...rest }) => rest);
+
+        //         return res.status(201).json({
+        //             success: true,
+        //             message: "Users added successfully.",
+        //             insertedCount: result.insertedCount,
+        //             users: usersWithoutPassword,
+        //         });
+        //     } catch (error) {
+        //         console.error(error);
+        //         res.status(500).json({
+        //             success: false,
+        //             message: "Failed to add users.",
+        //             error: error.message
+        //         });
+        //     }
+        // });
 
 
-
-
-
-        app.post("/add-user", async (req, res) => {
+        app.post("/add-users", async (req, res) => {
             try {
-                const newUser = req.body;
-                const result = await userCollection.insertOne(newUser)
-                const user = await userCollection.findOne({ _id: result.insertedId })
-                if (user?.password) delete user.password
+                const users = req.body;
 
-                return res.status(201).json({
-                    suceess: true,
+                if (!Array.isArray(users) || users.length === 0) {
+                    return res.status(400).json({
+                        success: false,
+                        message: "please provide an array of users."
+                    })
+                }
+                const result = await userCollection.insertMany(users)
+                const user = users.map((user, index) => ({
+                    ...user,
+                    _id: result.insertedIds[index]
+                }))
+
+                const userWithoutPassword = user.map(({ password, ...rest }) => rest)
+
+                res.status(201).json({
+                    success: true,
                     message: "user created successfully.",
-                    user
+                    user: userWithoutPassword
                 })
             } catch (error) {
                 console.error(error)
                 res.status(500).json({
-                    success: false,
-                    message: "failed to create user",
+                    success: true,
+                    message: "faild to create user.",
                     error: error.message
                 })
             }
         })
-
 
 
 
