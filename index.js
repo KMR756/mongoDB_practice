@@ -51,89 +51,89 @@ async function run() {
 
         // %%%%%%%%% CRUD operation %%%%%%%%%
         // add new user to users collection (CRUD | create | post | insertOne)
-        // app.post("/add-user", async (req, res) => {
-        //     try {
-        //         const newUser = req.body;
+        app.post("/add-user", async (req, res) => {
+            try {
+                const newUser = req.body;
 
-        //         // 1️⃣ Check if the email already exists
-        //         const existingUser = await userCollection.findOne({ email: newUser.email });
+                // 1️⃣ Check if the email already exists
+                const existingUser = await userCollection.findOne({ email: newUser.email });
 
-        //         if (existingUser) {
-        //             return res.status(400).json({
-        //                 success: false,
-        //                 message: "User already registered.",
-        //             });
-        //         }
+                if (existingUser) {
+                    return res.status(400).json({
+                        success: false,
+                        message: "User already registered.",
+                    });
+                }
 
-        //         // 2️⃣ If not, insert the new user
-        //         const result = await userCollection.insertOne(newUser);
+                // 2️⃣ If not, insert the new user
+                const result = await userCollection.insertOne(newUser);
 
-        //         // 3️⃣ Retrieve the inserted user without password
-        //         const user = await userCollection.findOne(
-        //             { _id: result.insertedId },
-        //             { projection: { password: 0 } } // hide password field
-        //         );
+                // 3️⃣ Retrieve the inserted user without password
+                const user = await userCollection.findOne(
+                    { _id: result.insertedId },
+                    { projection: { password: 0 } } // hide password field
+                );
 
-        //         // 4️⃣ Send success response
-        //         return res.status(201).json({
-        //             success: true,
-        //             message: "User created successfully.",
-        //             user,
-        //         });
-        //     } catch (error) {
-        //         console.error(error);
-        //         return res.status(500).json({
-        //             success: false,
-        //             message: "Failed to add user.",
-        //             error: error.message,
-        //         });
-        //     }
-        // });
+                // 4️⃣ Send success response
+                return res.status(201).json({
+                    success: true,
+                    message: "User created successfully.",
+                    user,
+                });
+            } catch (error) {
+                console.error(error);
+                return res.status(500).json({
+                    success: false,
+                    message: "Failed to add user.",
+                    error: error.message,
+                });
+            }
+        });
 
 
         // ###################################
 
         // add multiple user to users collection (CRUD | create | post | insertMany)
-        // app.post("/add-users", async (req, res) => {
-        //     try {
-        //         // Expect an array of users in the request body
-        //         const newUsers = req.body;
+        app.post("/add-users", async (req, res) => {
+            try {
+                // Expect an array of users in the request body
+                const newUsers = req.body;
 
-        //         // Check that the body is an array
-        //         if (!Array.isArray(newUsers) || newUsers.length === 0) {
-        //             return res.status(400).json({
-        //                 success: false,
-        //                 message: "Please provide an array of users."
-        //             });
-        //         }
+                // Check that the body is an array
+                if (!Array.isArray(newUsers) || newUsers.length === 0) {
+                    return res.status(400).json({
+                        success: false,
+                        message: "Please provide an array of users."
+                    });
+                }
 
-        //         // Insert all users at once
-        //         const result = await userCollection.insertMany(newUsers);
+                // Insert all users at once
+                const result = await userCollection.insertMany(newUsers);
 
-        //         // Attach inserted _id values to the users
-        //         const savedUsers = newUsers.map((user, index) => ({
-        //             ...user,
-        //             _id: result.insertedIds[index],
-        //         }));
+                // Attach inserted _id values to the users
+                const savedUsers = newUsers.map((user, index) => ({
+                    ...user,
+                    _id: result.insertedIds[index],
+                }));
 
-        //         // Remove passwords from each user before sending back
-        //         const usersWithoutPassword = savedUsers.map(({ password, ...rest }) => rest);
+                // Remove passwords from each user before sending back
+                const usersWithoutPassword = savedUsers.map(({ password, ...rest }) => rest);
 
-        //         return res.status(201).json({
-        //             success: true,
-        //             message: "Users added successfully.",
-        //             insertedCount: result.insertedCount,
-        //             users: usersWithoutPassword,
-        //         });
-        //     } catch (error) {
-        //         console.error(error);
-        //         res.status(500).json({
-        //             success: false,
-        //             message: "Failed to add users.",
-        //             error: error.message
-        //         });
-        //     }
-        // });
+                return res.status(201).json({
+                    success: true,
+                    message: "Users added successfully.",
+                    insertedCount: result.insertedCount,
+                    users: usersWithoutPassword,
+                });
+            } catch (error) {
+                console.error(error);
+                res.status(500).json({
+                    success: false,
+                    message: "Failed to add users.",
+                    error: error.message
+                });
+            }
+        });
 
 
         // ###################################
@@ -194,46 +194,148 @@ async function run() {
 
         // find document by specific condition from  users collection (CRUD | read | get | find)
         // finding admins only
-        app.get("/admins", async (req, res) => {
-            try {
-                const admin = await userCollection.find({ role: "admin" }, { projection: { name: 1, email: 1, role: 1 } }).toArray()
-                console.log(admin);
+        // app.get("/admins", async (req, res) => {
+        //     try {
+        //         const admin = await userCollection.find({ role: "admin" }, { projection: { name: 1, email: 1, role: 1 } }).toArray()
+        //         console.log(admin);
 
-                res.status(200).json({
-                    succeess: true,
-                    message: "find all admins.",
-                    admin
-                })
-            } catch (error) {
-                console.error(error)
-                res.status(500).json({
-                    success: false,
-                    message: "faild to fetch admins",
-                    error: error.message
-                })
-            }
-        })
+        //         res.status(200).json({
+        //             succeess: true,
+        //             message: "find all admins.",
+        //             admin
+        //         })
+        //     } catch (error) {
+        //         console.error(error)
+        //         res.status(500).json({
+        //             success: false,
+        //             message: "faild to fetch admins",
+        //             error: error.message
+        //         })
+        //     }
+        // })
 
         // ###################################
 
         // find document by specific condition from  users collection (CRUD | read | get | find)
         // finding users only
-        app.get("/users", async (req, res) => {
-            try {
-                const users = await userCollection.find({ role: "user" }, { projection: { email: 1, name: 1, role: 1 } }).toArray()
+        // app.get("/users", async (req, res) => {
+        //     try {
+        //         const users = await userCollection.find({ role: "user" }, { projection: { email: 1, name: 1, role: 1 } }).limit(3).toArray()
 
-                return res.status(201).json({
-                    succeess: true,
-                    message: "user fetch successfully.",
-                    users
+        //         return res.status(201).json({
+        //             succeess: true,
+        //             message: "user fetch successfully.",
+        //             users
+        //         })
+        //     } catch (error) {
+        //         console.error(error)
+        //         res.status(500).json({
+        //             succeess: false,
+        //             message: "faild to fetch users.",
+        //             error: error.message
+        //         })
+        //     }
+        // })
+        // ###################################
+        // update single document from  users collection (CRUD | update | put/patch | updateOne)
+        // update single doc
+        // app.put("/update-user/:id", async (req, res) => {
+        //     try {
+        //         const { id } = req.params;
+        //         const userData = req.body;
+
+        //         const filter = { _id: new ObjectId(id) }
+        //         const updateInfo = {
+        //             $set: {
+        //                 ...userData
+        //             }
+        //         }
+        //         const option = { upsert: true }
+
+        //         const result = await userCollection.updateOne(filter, updateInfo, option)
+        //         const updatedUser = await userCollection.findOne(filter, { projection: { password: 0 } })
+        //         // console.log(user);
+
+        //         res.status(201).json({
+        //             success: true,
+        //             message: "user updated successfully..",
+        //             updatedUser
+        //         })
+
+        //     } catch (error) {
+        //         console.log(error)
+        //         res.status(500).json({
+        //             success: false,
+        //             message: "user updated failed.",
+        //             error: error.message
+        //         })
+        //     }
+        // })
+
+        // ###################################
+        // update multiple document from  users collection (CRUD | update | put/patch | updateMany)
+        // update multiple docs
+        // app.patch("/update-admins-user", async (req, res) => {
+        //     try {
+        //         const result = await userCollection.updateMany({ role: "admin" }, { $set: { role: "user" } })
+        //         console.log(result);
+
+
+        //         res.status(201).json(
+        //             {
+        //                 success: true,
+        //                 result
+        //             }
+        //         )
+        //     } catch (error) {
+        //         console.error(error)
+        //         res.status(500).json({
+        //             success: false,
+        //             message: "faild to update admin to user.",
+        //             error: error.message
+        //         })
+        //     }
+        // })
+
+        // ###################################
+        // delete single document from  users collection (CRUD | delete | delete | deleteOne)
+        // delete single docs
+        // app.delete("/delete-user/:id", async (req, res) => {
+        //     try {
+        //         const { id } = req.params
+        //         const deleteUser = await userCollection.deleteOne({ _id: new ObjectId(id) })
+        //         return res.status(201).json({
+        //             success: true,
+        //             message: "user deleted successfully.",
+        //             deleteUser
+        //         })
+        //     } catch (error) {
+        //         console.error(error)
+        //         return res.status(500).json({
+        //             success: false,
+        //             message: "failed to delet user",
+        //             error: error.message
+
+        //         })
+        //     }
+        // })
+
+
+        // ###################################
+        // delete multiple finding by specific field document from  users collection (CRUD | delete | delete | deleteOne)
+        // delete multiple docs
+
+        app.delete("/delete-status", async (req, res) => {
+            try {
+                const { status } = req.body;
+                const deletedData = await userCollection.deleteMany({ status: status })
+                res.status(201).json({
+                    success: true,
+                    message: "deleted successfully.",
+                    deletedData
                 })
             } catch (error) {
-                console.error(error)
-                res.status(500).json({
-                    succeess: false,
-                    message: "faild to fetch users.",
-                    error: error.message
-                })
+
             }
         })
         // Send a ping to confirm a successful connection
