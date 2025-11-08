@@ -325,19 +325,19 @@ async function run() {
         // delete multiple finding by specific field document from  users collection (CRUD | delete | delete | deleteOne)
         // delete multiple docs
 
-        app.delete("/delete-status", async (req, res) => {
-            try {
-                const { status } = req.body;
-                const deletedData = await userCollection.deleteMany({ status: status })
-                res.status(201).json({
-                    success: true,
-                    message: "deleted successfully.",
-                    deletedData
-                })
-            } catch (error) {
+        // app.delete("/delete-status", async (req, res) => {
+        //     try {
+        //         const { status } = req.body;
+        //         const deletedData = await userCollection.deleteMany({ status: status })
+        //         res.status(201).json({
+        //             success: true,
+        //             message: "deleted successfully.",
+        //             deletedData
+        //         })
+        //     } catch (error) {
 
-            }
-        })
+        //     }
+        // })
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
